@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.*;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.TimeUtils;
 
 import java.util.*;
@@ -17,17 +16,14 @@ public class LD34 extends ApplicationAdapter {
     public PerspectiveCamera cam;
     public ModelBatch modelBatch;
     public FirstPersonCameraController camController;
-    private static final OpenSimplexNoise NOISE = new OpenSimplexNoise();
     
-    List<Block> blocks = new ArrayList<Block>();
+    private World world;
     ModelBuilder modelBuilder;
-    Model model;
-    
-    Random rand = new Random();
-    
+    Model model;  
     
     @Override
     public void create() {
+        
         environment = new Environment();
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 1, 1, 1, 1f));
         environment.add(new DirectionalLight().set(1f, 1f, 1f, -1f, -0.8f, -0.2f));
@@ -48,41 +44,10 @@ public class LD34 extends ApplicationAdapter {
         Material material = new Material(ColorAttribute.createDiffuse(new Color((int) (0x200080))));
         model = modelBuilder.createBox(1f, 1f, 1f, material, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
         
-        
-        int dist = 512;
-        
-        long start = TimeUtils.millis();
-        Gdx.app.log("Game", "Generating world...");
-        for(int x = -dist; x < dist; x++) {
-            for(int z = -dist; z < dist; z++) {
-                float xx = Math.round(cam.position.x) + x;
-                float zz = Math.round(cam.position.z) + z;
-                float y = (float) Math.round(NOISE.eval(xx / 128f, zz / 128f) * 64);
-                Block e = new Block(model, new Pos(xx, y, zz));
-                e.transform.setToTranslation(xx, y, zz);
-                blocks.add(e);
-            }
-        }
-        Gdx.app.log("Game", "World generated in " + (TimeUtils.millis() - start) + "ms.");
-        start = TimeUtils.millis();
-        Gdx.app.log("Game", "Generating model cache...");
-        modelCache.begin();
-        modelCache.add(blocks);
-        modelCache.end();
-        Gdx.app.log("Game", "Model cache generated in " + (TimeUtils.millis() - start) + "ms.");
-        
+        world = new World("hello again", 512, 256, 512);
+        world.generate(this);
+        world.generateModel(this);
     }
-    
-    
-    private Vector3 position = new Vector3();
-    
-    protected boolean isVisible(Block instance) {
-        instance.transform.getTranslation(position);
-        position.add(instance.center);
-        return cam.frustum.sphereInFrustum(position, instance.radius);
-    }
-    
-    ModelCache modelCache = new ModelCache();
     
     @Override
     public void render() {
@@ -93,11 +58,9 @@ public class LD34 extends ApplicationAdapter {
         
         modelBatch.begin(cam);
         
-        modelBatch.render(modelCache, environment);
+        this.world.render(this);
         
         modelBatch.end();
-        
-        
     }
     
     @Override
