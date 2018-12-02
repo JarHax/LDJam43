@@ -7,7 +7,6 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.*;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.utils.TimeUtils;
 
 import java.util.*;
@@ -20,7 +19,7 @@ public class LD34 extends ApplicationAdapter {
     public FirstPersonCameraController camController;
     private static final OpenSimplexNoise NOISE = new OpenSimplexNoise();
     
-    List<GameObject> blocks = new ArrayList<GameObject>();
+    List<Block> blocks = new ArrayList<Block>();
     ModelBuilder modelBuilder;
     Model model;
     
@@ -59,7 +58,7 @@ public class LD34 extends ApplicationAdapter {
                 float xx = Math.round(cam.position.x) + x;
                 float zz = Math.round(cam.position.z) + z;
                 float y = (float) Math.round(NOISE.eval(xx / 128f, zz / 128f) * 64);
-                GameObject e = new GameObject(model, new Pos(xx, y, zz));
+                Block e = new Block(model, new Pos(xx, y, zz));
                 e.transform.setToTranslation(xx, y, zz);
                 blocks.add(e);
             }
@@ -77,7 +76,7 @@ public class LD34 extends ApplicationAdapter {
     
     private Vector3 position = new Vector3();
     
-    protected boolean isVisible(GameObject instance) {
+    protected boolean isVisible(Block instance) {
         instance.transform.getTranslation(position);
         position.add(instance.center);
         return cam.frustum.sphereInFrustum(position, instance.radius);
@@ -104,46 +103,5 @@ public class LD34 extends ApplicationAdapter {
     @Override
     public void dispose() {
         modelBatch.dispose();
-    }
-    
-    
-    public static class GameObject extends ModelInstance {
-        
-        public final Vector3 center = new Vector3();
-        public final Vector3 dimensions = new Vector3();
-        public final float radius;
-        
-        private final static BoundingBox bounds = new BoundingBox();
-        private Pos pos;
-        
-        public GameObject(Model model, Pos pos) {
-            super(model);
-            calculateBoundingBox(bounds);
-            bounds.getCenter(center);
-            bounds.getDimensions(dimensions);
-            radius = dimensions.len() / 2f;
-            this.pos = pos;
-        }
-        
-        @Override
-        public boolean equals(Object o) {
-            if(this == o)
-                return true;
-            if(o == null || getClass() != o.getClass())
-                return false;
-            
-            GameObject pos = (GameObject) o;
-            
-            if(Float.compare(pos.pos.getX(), this.pos.getX()) != 0)
-                return false;
-            return Float.compare(pos.pos.getZ(), this.pos.getZ()) == 0;
-        }
-        
-        @Override
-        public int hashCode() {
-            int result = (pos.getX() != +0.0f ? Float.floatToIntBits(pos.getX()) : 0);
-            result = 31 * result + (pos.getZ() != +0.0f ? Float.floatToIntBits(pos.getZ()) : 0);
-            return result;
-        }
     }
 }
