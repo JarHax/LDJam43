@@ -90,7 +90,6 @@ public class LD34 extends ApplicationAdapter {
         Gdx.graphics.setTitle("FPS: " + Gdx.graphics.getFramesPerSecond());
         modelBatch.begin(cam);
         for(GameObject instance : blocks.values()) {
-            System.out.println(instance.model.meshes.size);
             if(isVisible(instance)) {
                 
                 modelBatch.render(instance, environment);
@@ -99,7 +98,6 @@ public class LD34 extends ApplicationAdapter {
         modelBatch.end();
         
         
-        int i = 5;
         if(Math.round(totalTime) % 0.5f == 0/*Math.abs(lastX - cam.position.x) > i || Math.abs(lastZ - cam.position.z) > i*/) {
             int dist = 50;
             for(int x = -dist; x < dist; x++) {
