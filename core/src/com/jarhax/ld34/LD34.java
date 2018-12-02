@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.*;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
+import com.badlogic.gdx.utils.TimeUtils;
 
 import java.util.*;
 
@@ -51,6 +52,8 @@ public class LD34 extends ApplicationAdapter {
         
         int dist = 512;
         
+        long start = TimeUtils.millis();
+        Gdx.app.log("Game", "Generating world...");
         for(int x = -dist; x < dist; x++) {
             for(int z = -dist; z < dist; z++) {
                 float xx = Math.round(cam.position.x) + x;
@@ -61,10 +64,13 @@ public class LD34 extends ApplicationAdapter {
                 blocks.add(e);
             }
         }
-        
+        Gdx.app.log("Game", "World generated in " + (TimeUtils.millis() - start) + "ms.");
+        start = TimeUtils.millis();
+        Gdx.app.log("Game", "Generating model cache...");
         modelCache.begin();
         modelCache.add(blocks);
         modelCache.end();
+        Gdx.app.log("Game", "Model cache generated in " + (TimeUtils.millis() - start) + "ms.");
         
     }
     
